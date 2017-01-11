@@ -32,7 +32,8 @@ namespace SimpleProducer
                 {
                     string text = "test";
 
-                    var task = ProduceAndReportUsingContinueWithAsync(topic, text);
+                    //var task = ProduceAndReportUsingContinueWithAsync(topic, text);
+                    var task = ProduceAndReportUsingAwaitAsync(topic, text);
 
                     await task;
                 }
@@ -57,6 +58,14 @@ namespace SimpleProducer
             {
                 Console.WriteLine($"Partition: {task.Result.Partition}, Offset: {task.Result.Offset}");
             });
+        }
+
+        private static async Task ProduceAndReportUsingAwaitAsync(Topic topic, string text)
+        {
+            byte[] data = Encoding.UTF8.GetBytes(text);
+            DeliveryReport deliveryReport = await topic.Produce(data);
+
+            Console.WriteLine($"Partition: {deliveryReport.Partition}, Offset: {deliveryReport.Offset}");
         }
     }
 }
