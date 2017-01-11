@@ -12,10 +12,12 @@ namespace SimpleProducer
             string brokerList = "127.0.0.1:9092"; // args[0];
             string topicName = "testtopic"; // args[1];
 
-            Test(brokerList, topicName);
+            var task = TestAsync(brokerList, topicName);
+
+            task.Wait();
         }
 
-        private static void Test(string brokerList, string topicName)
+        private static async Task TestAsync(string brokerList, string topicName)
         {
             var config = new Config();
 
@@ -32,7 +34,7 @@ namespace SimpleProducer
 
                     var task = ProduceAndReportUsingContinueWithAsync(topic, text);
 
-                    task.Wait();
+                    await task;
                 }
             }
         }
