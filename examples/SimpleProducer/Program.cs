@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using RdKafka;
 
@@ -64,6 +65,9 @@ namespace SimpleProducer
         {
             byte[] data = Encoding.UTF8.GetBytes(text);
             DeliveryReport deliveryReport = await topic.Produce(data);
+
+            //await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Yield(); // Force the task not to continue synchronously (similar to ContinueWith)
 
             Console.WriteLine($"Partition: {deliveryReport.Partition}, Offset: {deliveryReport.Offset}");
         }
