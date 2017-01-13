@@ -77,11 +77,17 @@ namespace SimpleProducer
 
         private static async Task ProduceAndReportUsingAwaitAsync(Topic topic, string text)
         {
+            Console.WriteLine($"Before Topic.Produce: Thread id: {Thread.CurrentThread.ManagedThreadId} {Thread.CurrentThread.Name}");
+
             byte[] data = Encoding.UTF8.GetBytes(text);
             DeliveryReport deliveryReport = await topic.Produce(data);
 
+            Console.WriteLine($"After Topic.Produce: Thread id: {Thread.CurrentThread.ManagedThreadId} {Thread.CurrentThread.Name}");
+
             //await Task.Delay(TimeSpan.FromSeconds(1));
             await Task.Yield(); // Force the task not to continue synchronously (similar to ContinueWith)
+
+            Console.WriteLine($"After Task.Yield: Thread id: {Thread.CurrentThread.ManagedThreadId} {Thread.CurrentThread.Name}");
 
             Console.WriteLine($"Partition: {deliveryReport.Partition}, Offset: {deliveryReport.Offset}");
         }
