@@ -66,12 +66,26 @@ namespace SimpleProducer
 
             byte[] data = Encoding.UTF8.GetBytes(text);
             Task<DeliveryReport> deliveryReport = topic.Produce(data);
-            return deliveryReport.ContinueWith(task =>
+
+            Action<Task<DeliveryReport>> todo = task =>
             {
                 Console.WriteLine($"In ContinueWith: Thread id: {Thread.CurrentThread.ManagedThreadId} {Thread.CurrentThread.Name}");
 
                 Console.WriteLine($"Partition: {task.Result.Partition}, Offset: {task.Result.Offset}");
-            });
+            };
+
+            Thread.Sleep(TimeSpan.FromSeconds(1));
+
+            if (deliveryReport.IsCompleted)
+            {
+                Console.WriteLine($"Taking shortcut");
+
+                todo(deliveryReport);
+
+                return Task.CompletedTask;
+            }
+            else
+                return deliveryReport.ContinueWith(todo);
         }
     }
 }
