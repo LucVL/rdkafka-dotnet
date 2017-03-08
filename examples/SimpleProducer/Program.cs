@@ -78,6 +78,8 @@ namespace Confluent.Kafka.Examples.SimpleProducer
         {
             var deliveryReport = await producer.ProduceAsync(topicName, null, text);
 
+            await Task.Yield(); // Force the task not to continue synchronously (similar to ContinueWith)
+
             Console.WriteLine($"Partition: {deliveryReport.Partition}, Offset: {deliveryReport.Offset}");
         }
 
