@@ -32,6 +32,11 @@ namespace Confluent.Kafka.Examples.SimpleProducer
             string brokerList = "127.0.0.1:9092"; // args[0];
             string topicName = "testtopic"; // args[1];
 
+            Test(brokerList, topicName);
+        }
+
+        private static void Test(string brokerList, string topicName)
+        {
             var config = new Dictionary<string, object>
             {
                 { "bootstrap.servers", brokerList },
