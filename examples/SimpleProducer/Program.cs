@@ -32,10 +32,12 @@ namespace Confluent.Kafka.Examples.SimpleProducer
             string brokerList = "127.0.0.1:9092"; // args[0];
             string topicName = "testtopic"; // args[1];
 
-            Test(brokerList, topicName);
+            var task = Test(brokerList, topicName);
+
+            task.Wait();
         }
 
-        private static void Test(string brokerList, string topicName)
+        private static async Task Test(string brokerList, string topicName)
         {
             var config = new Dictionary<string, object>
             {
@@ -52,13 +54,16 @@ namespace Confluent.Kafka.Examples.SimpleProducer
 
                 string text = $"test: {DateTime.Now.ToString("o")}";
 
-                var unusedTask = ProduceAndReportUsingContinueWithAsync(producer, topicName, text);
+                var produceAndReportTask = ProduceAndReportUsingContinueWithAsync(producer, topicName, text);
+
+                await produceAndReportTask;
 
                 // Tasks are not waited on synchronously (ContinueWith is not synchronous),
                 // so it's possible they may still in progress here.
                 producer.Flush();
             }
         }
+
         private static Task ProduceAndReportUsingContinueWithAsync(Producer<Null, string> producer, string topicName, string text)
         {
             var deliveryReportTask = producer.ProduceAsync(topicName, null, text);
