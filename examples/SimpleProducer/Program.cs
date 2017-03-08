@@ -54,7 +54,8 @@ namespace Confluent.Kafka.Examples.SimpleProducer
 
                 string text = $"test: {DateTime.Now.ToString("o")}";
 
-                var produceAndReportTask = ProduceAndReportUsingContinueWithAsync(producer, topicName, text);
+                //var produceAndReportTask = ProduceAndReportUsingContinueWithAsync(producer, topicName, text);
+                var produceAndReportTask = ProduceAndReportUsingAwaitAsync(producer, topicName, text);
 
                 await produceAndReportTask;
 
@@ -71,6 +72,13 @@ namespace Confluent.Kafka.Examples.SimpleProducer
             {
                 Console.WriteLine($"Partition: {task.Result.Partition}, Offset: {task.Result.Offset}");
             });
+        }
+
+        private static async Task ProduceAndReportUsingAwaitAsync(Producer<Null, string> producer, string topicName, string text)
+        {
+            var deliveryReport = await producer.ProduceAsync(topicName, null, text);
+
+            Console.WriteLine($"Partition: {deliveryReport.Partition}, Offset: {deliveryReport.Offset}");
         }
 
         private static void Producer_OnStatistics(object sender, string e)
