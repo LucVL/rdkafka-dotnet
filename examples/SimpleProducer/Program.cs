@@ -35,6 +35,7 @@ namespace Confluent.Kafka.Examples.SimpleProducer
             var config = new Dictionary<string, object>
             {
                 { "bootstrap.servers", brokerList },
+                { "debug", "all" },
             };
 
             using (var producer = new Producer<Null, string>(config, null, new StringSerializer(Encoding.UTF8)))
@@ -44,19 +45,24 @@ namespace Confluent.Kafka.Examples.SimpleProducer
 
                 Console.WriteLine($"{producer.Name} producing on {topicName}. q to exit.");
 
-                string text = $"test: {DateTime.Now.ToString("o")}" ;
+                string text = $"test: {DateTime.Now.ToString("o")}";
 
-                var deliveryReport = producer.ProduceAsync(topicName, null, text);
-                deliveryReport.ContinueWith(task =>
-                {
-                    Console.WriteLine($"Partition: {task.Result.Partition}, Offset: {task.Result.Offset}");
-                });
+                var unusedTask = ProduceAndReportUsingContinueWithAsync(producer, topicName, text);
 
                 // Tasks are not waited on synchronously (ContinueWith is not synchronous),
                 // so it's possible they may still in progress here.
                 producer.Flush();
             }
         }
+        private static Task ProduceAndReportUsingContinueWithAsync(Producer<Null, string> producer, string topicName, string text)
+        {
+            var deliveryReportTask = producer.ProduceAsync(topicName, null, text);
+            return deliveryReportTask.ContinueWith(task =>
+            {
+                Console.WriteLine($"Partition: {task.Result.Partition}, Offset: {task.Result.Offset}");
+            });
+        }
+
         private static void Producer_OnStatistics(object sender, string e)
         {
             Console.WriteLine($"OnStatistics: {e}");
