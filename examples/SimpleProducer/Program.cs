@@ -55,9 +55,15 @@ namespace Confluent.Kafka.Examples.SimpleProducer
                 string text = $"test: {DateTime.Now.ToString("o")}";
 
                 //var produceAndReportTask = ProduceAndReportUsingContinueWithAsync(producer, topicName, text);
-                var produceAndReportTask = ProduceAndReportUsingAwaitAsync(producer, topicName, text);
+                //var produceAndReportTask = ProduceAndReportUsingAwaitAsync(producer, topicName, text);
 
-                await produceAndReportTask;
+                //await produceAndReportTask;
+
+                var deliveryReport = await producer.ProduceAsync(topicName, null, text);
+
+                //await Task.Yield(); // Force the task not to continue synchronously (similar to ContinueWith)
+
+                Console.WriteLine($"Partition: {deliveryReport.Partition}, Offset: {deliveryReport.Offset}");
 
                 // Tasks are not waited on synchronously (ContinueWith is not synchronous),
                 // so it's possible they may still in progress here.
